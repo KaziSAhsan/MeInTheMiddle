@@ -10,7 +10,7 @@ import sys
 
 myip = sys.argv[1]
 
-print("[+] Spoof in progress")
+print("[+] Spoof in progress. Waiting for DNS requests to intercept.")
 # change ip tables to set up queue --> iptables -I FORWARD -j NFQUEUE --queue-num 0 (use OUTPUT instead of FORWARD for local machine)
 # get IP quick ip -c 1 www.google.com
 

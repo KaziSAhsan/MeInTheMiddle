@@ -10,6 +10,9 @@ import optparse
 import socket
 import struct
 import sys
+from termcolor import colored, cprint 
+  
+#text = colored('Hello, World!', 'red', attrs=['reverse', 'blink']) 
 
 def get_default_gateway_linux():
     """Read the default gateway directly from /proc."""
@@ -43,16 +46,22 @@ def py_scan(ip):
     # lets see who responded with a scapy function called .summary()
     # print(responses.summary())
     print('\n')
-    print("ID\tIP\t\t\tAt MAC Address\n-------------------------------------------")
+    print("ID\tIP\t\t\tAt MAC Address\n---------------------------------------------------")
     counter = 1
     results = []
     for response in responses:
-        new_result = (str(counter) + ")\t" + response[1].psrc + "\t\t" + response[1].hwsrc)
+        if response[1].psrc == gateway_ip:
+            device_id = "Gateway Router"
+            color = "yellow"
+        else:
+            device_id = response[1].hwsrc
+            color = "white"
+        new_result = (str(counter) + ")\t" + response[1].psrc + "\t\t" + device_id)
         results.append(new_result)
-        if gateway_ip in new_result:
-            new_result += " - Gateway Router"
-        print(new_result)
-        print("-------------------------------------------")
+#        if gateway_ip in new_result:
+#            new_result += " - Gateway Router"
+        print(colored(new_result, color))
+        print("---------------------------------------------------")
         counter += 1
     return results
 target_subnet = sys.argv[1]
