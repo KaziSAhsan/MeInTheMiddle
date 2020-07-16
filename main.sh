@@ -94,7 +94,7 @@ sleep 1
 
 echo "Complete."
 
-./dns_spoof.py $MYIP
+./dns_spoof.py $MYIP 2>/dev/null
 
 elif [[ $USERNUMBER == '2' ]]
 then
