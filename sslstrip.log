@@ -1,6 +1,0 @@
-2020-07-14 12:24:31,327 POST Data (www.bing.com):
-<ClientInstRequest><Events><E><T>Event.ClientInst</T><IG>D49899F1D4F2435787BD886343788AFF</IG><TS>1594743871225</TS><D><![CDATA[{id:4593,P:"2:f,3:f,4:f,5:f,7:f,8:f,9:f,10:f,11:73,12:51f,13:51f,14:51g,15:51g,16:51g,17:51h",S:"nav:0",v:1.1,T:"CI.Perf",FID:"CI",Name:"PerfV2"}]]></D></E></Events><STS>1594743871225</STS></ClientInstRequest>
-2020-07-14 12:24:34,134 POST Data (www.bing.com):
-wb=1
-2020-07-14 12:24:34,135 POST Data (www.bing.com):
-url=http%3A//www.bing.com/&V=web
