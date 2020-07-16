@@ -1,141 +1,61 @@
-# Python Tutorials for Security Engineers
+# Me In The Middle
 
-Three scripts to get you started with your adventure into the world of Cyber Security-- specfically ARP and its use for Man in the Middle attacks. Developed and tested on Kali Linux.
+Me In The Middle is a pentration testing and red team tool for achieving MITM positioning on a local network, and facilitating additional attacks once your device is in the middle. The core functionality is written in Python with a Bash wrapper script that provides a command-line interface.
 
-***
-
-## So where do we start?
-
-1. **Network Scanning** with Python
-
-  - First we want to see what's out there on the network, using ARP_netscan.py to return a list of IP addresses on our subnet.
-
-2. **ARP Spoofing** with Python
-
-- arp_spoof.py is essentially a proof of concept for a man in the middle attack on confidentiality. We don't look at the contents of any packets here-- we have [another script](https://github.com/ggedgerton/MitMandMe) for that--  but with this file we do convince a target machine that **our** machine is the router it should be talking to. This script is also a great way to get blocklisted on ACLs, so...
-
-3. **MAC Address Spoofing** with Python
-
-- So we got caught ARP spoofing in steps one and two-- now we want to cover our tracks and try again. With this script, we can change our MAC address, pretend we're a whole new device, and get back at it.
-
-- - -
-
-## Netscanning With Python
-
-*This simple network scanner functions much like 
-Kali Linux's built-in netdiscover command.*
-
-Our scanner uses ARP requests instead of pings to discover what hosts are running on the netwrok.
-
-<details> 
-<summary><B>Why is an ARP request preferrable in this instance?</B>
-</summary>
-
-> ARP is an automated part of the day-to-day functioning of many network devices, so blue teamers are less likely to flag it in their logs and investigate us. ARP requests are also less likely to be blocked by firewall rules.
-</details></p>
-
-Here's what we'd expect to find using the built-in Kali tool **netdiscover**.
-
-![netdiscover -r subnet](./image/netd_cmd.png)
-
-    Note that we are giving netdiscover our own subnet
-
-![netdiscover output](./image/netd_output.png)
-
-    netdiscover outputs the subnet IP and MAC addresses of other devices on our network
-
-We should get the same output by running [ARP_scanner.py](/ARP_netscan.py). Make sure to change the py_scan variable (at the end of the script) to the address of the subnet you want to scan!
-
-
-<details> 
-<summary><b>Why does the python script broadcast to "ff:ff:ff:ff:ff:ff"?</b>
-</summary>
-
-> "ff:ff:ff:ff:ff:ff" is the broadcast MAC address, so this message will reach all computers on our network. Once we get a reply from a device, we replace "ff:ff:ff:ff:ff:ff" with the known MAC address, which gets used for the remainder of the script.
-</details><p>
-
-</p>
-
-Now that we have a few devices to target, let's use an ARP attack to see what we can do.
+DO NOT use this program to target machines you do not own without express written permission.
 
 ***
 
-## ARP Spoofing 
+## Installation Instructions + Dependencies
 
-<details> 
-  <summary><b>What is an ARP spoofing attack and why would anyone do it?</b>
-</summary>
+<b>TO-DO</b>
 
-> In an ARP spoofing attack, often called a Man in the Middle attack, the attacker's device uses the ARP protocol to claim that it is a different machine on the network-- often disgusing itself as the router. Then other machines on the network send their traffic to the attacker's device instead of the real router, allowing the attacker to read any unencrypted information sent its way. This attack is used to steal confdential data.
-</details><p>
+## Capabilities and Use
 
-</p>
+### Network Scanning and Target Selection
 
-Clients accept ARP responses even if they did not send a request-- and clients do not verify the ARP responses. Yikes. This means we can claim to be the owner of any IP address we want.
+Me In The Middle sends ARP packets for quick scanning of the local subnet. It accepts CIDR notation as an argument to determine which subnet to scan. You may also skip the scan by providing the target device IP and the gateway router IP at the command line.
 
-Below you will find the break down of an ARP attacker
+```./main.sh <subnet>```
+or
+```./main.sh <target_ip> <gateway_router_ip>```
 
-1. Here is the IP address of my attack machine at 10.0.2.15. You can also see the address of the subnet's gateway router at 10.0.2.1. This is the router used by both my computer and the victim machine to access the internet.
+If main.sh is run without arguments, it will prompt for a subnet to scan.
 
-![ARP Attacker](./image/attack_hostname_gatrway.png)
+[Results of a sample ARP scan](image/arp-scan.png)
 
+Once you have your scan results, select a target device and initiate the MITM attack. The gateway router is automatically detected and spoofed, using regular ARP broadcasts to intercept traffic between the router and the target.
 
-2. When we run an ARP scan of the network from our attack client, we find a number of machines, including the one we want to attack: 10.0.2.4.
+### Credential Sniffing and sslstrip
 
-![ARP Scan](./image/arp_scan.png)
+Once the attack begins, sslstrip (installed separately - see instructions above) and packet_sniffer.py begin to run. 
 
+[sslstrip](https://github.com/moxie0/sslstrip) is a tool by Moxie Marlinspike that blocks external sites from requesting a protocol upgrade from HTTP to HTTPS-- that is, if the target types "google.com" into their browser, sslstrip can cause them to access the unencrypted http://google.com and allow us to view traffic in the clear.
 
-3. This is the IP Address of the machine I am targetting. <p><b>IMPORTANT: I own this target machine. Do not execute this attack against any machine that is not yours without explicit written permission.</b>
+packet_sniffer.py is Me In The Midddle's packet sniffer tool. It checks every packet coming over the wire for login credentials, ad saves those credentials in ./output.txt. (By default, it it does not save any credential-free packets to your drive).
 
-![ARP Spoof Target](./image/target_ip.png)
+### DNS Spoofing
 
-<i>Again, note that my attack and target clients share the same gateway router</i>
+The DNS Spoof module alters DNS responses coming from an external DNS server back to the target device, editing the IP address of the response packet to match a server of your choice. 
 
+By default, the module alters *all* DNS responses and edits them. It also autodetects your own IP address and inserts that into each DNS response. This allows for the creation of a makeshift "captive portal." 
 
-4. With this information, we can launch the attack and gain Man in the Middle access.
+In our example, the targeted user must input credentials on our malicious webpage and click Sign In to escape the portal. Those credentials are caught by Me In The Middle's packet sniffer and saved to output.txt. (The Sign In button on this sample page sends a crafted response to a specific URL, which is detected by the DNS spoofer as a signal to end the attack and stop altering packets.)
 
-![ARP Attack](./image/spoof_attack.png)
+Since DNS traffic is normally unencrypted, this module does not depend on sslstrip to downgrade the target's web protocol.
 
+### File Replacement
 
-[This script](/arp_spoof.py) sends alternating packets to our gateway router and our target machine; these ARP packets match our MAC address to two different IP addresses. That is, we are telling the gateway router that our machine has the victim's IP address, and we are telling the victim that our machine has the gateway router's IP address. That way, traffic back and forth from the victim to the router flows through us.
+The File Replacement module detects when the user attempts to download a file with a certain file extension. It then redirects that user to download a file of your choice (from a server of your choice) instead.
 
-***
+Both the redirect link and the file extension to detect are predefined in file_replacer.py. The ability to input those options on chossing this module is planned for a future update.
 
-## Mac Address Spoofing
+### Code Injection
 
+This powerful module intercepts HTML files sent from an external server to the target machine, and edits those responses to include Javascript (or other code) of your choice. This code will be executed in the target's browser whenever they load a compatible HTML page, allowing XSS-style attacks across a variety of sites. In tests, this attack succeeded against browsers visiting google.com, bing.com, and more.
 
-Sometimes, we need to spoof our MAC address to bypass certain Access Control Lists that may have caught on to our bad behavior. We can do this at the command line, but why not put it into a script? Here's how.
+The Javascript to execute is predefined in code_injector.py. The ability to input a line of code or read code from an external file, and then inject that code, is planned for a future update.
 
-### Command line method:
+### Mac Address Spoofing
 
-1. Check our MAC Address
-
-![ifconfig](./image/ifconfig.png)
-
-    note my interface is eth0 and my MAC Address 08:00:27:23:ff:90
-
-2. Linux Commands to change our MAC 
-
-![ifconfig](./image/manualChange.png)
-
-3. Confirm our MAC was changed
-
-![ifconfig](./image/changedMac.png)
-    
-     My new MAC address is 66:55:44:33:22:11
-
-How do we do this in Python? Why, there's a module for that!
-
->[This module](https://docs.python.org/3/library/subprocess.html) will let us use command line arguments in our python script
-
-> We get the desired MAC address and network interface from the user during the execution of the script by using the input() function.
-
-
-Check out the Mac Changer Script [here](/MACchanger.py).
-
-<details> 
-  <summary>Besides bypassing ACLs, why else might a hacker spoof their MAC address?
-  </summary>
-
-> To hide themselves on a network or impersonate another device.
-</details>
+This module is not included in the main wrapper as of July 2020, but MACChanger.py can be run on its own to spoof your MAC address to other devices on the network. Use it to get around MAC blacklisting or add a layer of protection to your identity on the network.
