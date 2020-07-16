@@ -22,7 +22,7 @@ or
 
 If main.sh is run without arguments, it will prompt for a subnet to scan.
 
-[Results of a sample ARP scan](image/arp-scan.png)
+[Results of a sample ARP scan](image/mitm-scan.png)
 
 Once you have your scan results, select a target device and initiate the MITM attack. The gateway router is automatically detected and spoofed, using regular ARP broadcasts to intercept traffic between the router and the target.
 
