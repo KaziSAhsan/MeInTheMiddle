@@ -46,7 +46,7 @@ Since DNS traffic is normally unencrypted, this module does not depend on sslstr
 
 The File Replacement module detects when the user attempts to download a file with a certain file extension. It then redirects that user to download a file of your choice (from a server of your choice) instead.
 
-Both the redirect link and the file extension to detect are predefined in file_replacer.py. The ability to input those options on chossing this module is planned for a future update.
+Both the redirect link and the file extension to detect are predefined in file_replacer.py. The ability to input those options on selecting this module is planned for a future update.
 
 ### Code Injection
 
