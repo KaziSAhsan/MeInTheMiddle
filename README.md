@@ -30,7 +30,7 @@ Once the attack begins, sslstrip (installed separately - see instructions above)
 
 [sslstrip](https://github.com/moxie0/sslstrip) is a tool by Moxie Marlinspike that blocks external sites from requesting a protocol upgrade from HTTP to HTTPS-- that is, if the target types "google.com" into their browser, sslstrip can cause them to access the unencrypted http://google.com and allow us to view traffic in the clear.
 
-packet_sniffer.py is Me In The Midddle's packet sniffer tool. It checks every packet coming over the wire for login credentials, and saves those credentials in ./output.txt. (By default, it it does not save any credential-free packets to your drive).
+packet_sniffer.py is Me In The Midddle's packet sniffer tool. It checks every packet coming over the wire for login credentials, ad saves those credentials in ./output.txt. (By default, it it does not save any credential-free packets to your drive).
 
 ### DNS Spoofing
 
@@ -38,7 +38,7 @@ The DNS Spoof module alters DNS responses coming from an external DNS server bac
 
 By default, the module alters *all* DNS responses and edits them. It also autodetects your own IP address and inserts that into each DNS response. This allows for the creation of a makeshift "captive portal." 
 
-In our example, the targeted user must input credentials on our malicious webpage and click Sign In to escape the portal. Those credentials are caught by Me In The Middle's packet sniffer and saved to output.txt. (The Sign In button on this sample page sends a crafted request to a specific URL, which is detected by the DNS spoofer as a signal to end the attack and stop altering packets.)
+In our example, the targeted user must input credentials on our malicious webpage and click Sign In to escape the portal. Those credentials are caught by Me In The Middle's packet sniffer and saved to output.txt. (The Sign In button on this sample page sends a crafted response to a specific URL, which is detected by the DNS spoofer as a signal to end the attack and stop altering packets.)
 
 Since DNS traffic is normally unencrypted, this module does not depend on sslstrip to downgrade the target's web protocol.
 

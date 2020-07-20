@@ -75,7 +75,7 @@ ip_selection = (ip_options[result_id - 1])
 ip_selection = ip_selection.split("\t")
 ip_selection = ip_selection[1]
 
-print(f"Spoofing target {ip_selection} and gateway router {gateway_ip}")
+#print(f"Spoofing target {ip_selection} and gateway router {gateway_ip}", end = '')
 
 with open('/tmp/mitm.txt', 'w') as output:
     output.write(f"{ip_selection} {gateway_ip}")

