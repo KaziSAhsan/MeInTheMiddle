@@ -1,5 +1,6 @@
 # Me In The Middle
-### By Gavin Edgerton (github.com/ggedgerton) and Luke Williams
+
+### By Gavin Edgerton (github.com/ggedgerton) and Luke Williams (github.com/lukewilliams-1248)
 
 Me In The Middle is a pentration testing and red team tool for achieving MITM positioning on a local network, and facilitating additional attacks once your device is in the middle. The core functionality is written in Python with a Bash wrapper script that provides a command-line interface.
 
